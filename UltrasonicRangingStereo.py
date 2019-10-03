@@ -11,10 +11,11 @@ import time
 trigPin = 16
 trigPinA = 16
 trigPinB = 36
-echoPin = 18
 
+echoPin = 18
 echoPinA = 18
 echoPinB = 38
+
 rotation = 0
 
 MAX_DISTANCE = 220          #define the maximum measured distance
@@ -32,15 +33,15 @@ def pulseIn(pin,level,timeOut): # function pulseIn: obtain pulse time of a pin
             return 0;
     pulseTime = (time.time() - t0)*1000000
     return pulseTime
-    
+
 def getSonar():     #get the measurement results of ultrasonic module,with unit: cm
-    GPIO.output(trigPin,GPIO.HIGH)      #make trigPin send 10us high level 
+    GPIO.output(trigPin,GPIO.HIGH)      #make trigPin send 10us high level
     time.sleep(0.00001)     #10us
     GPIO.output(trigPin,GPIO.LOW)
     pingTime = pulseIn(echoPin,GPIO.HIGH,timeOut)   #read plus time of echoPin
     distance = pingTime * 340.0 / 2.0 / 10000.0     # the sound speed is 340m/s, and calculate distance
     return distance
-    
+
 def setup():
     print ('Program is starting...')
     GPIO.setmode(GPIO.BOARD)       #numbers GPIOs by physical location
@@ -65,7 +66,7 @@ def loop():
 		trigPin = trigPinB
 		
         time.sleep(pingFreq)
-        
+
 if __name__ == '__main__':     #program start from here
     setup()
     try:
