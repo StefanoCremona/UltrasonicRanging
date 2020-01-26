@@ -13,13 +13,24 @@ trigPin = 16
 #trigPin = 36
 echoPin = 18
 #echoPin = 38
+ledPin = 11
+
 MAX_DISTANCE = 220          #define the maximum measured distance
 pingFreq = 0.5              #define the freq of the signal check
-executionTime = 3           #Second after that the script terminates.
+executionTime = 3           #Second after that the walking event terminates.
+executions = 5              #Walking events recorded
 timeOut = MAX_DISTANCE*60   #calculate timeout according to the maximum measured distance
 
-startTime = time.time()
+f = open("walkingStef.txt", "a")
 
+def setup():
+    print ('Program is starting...')
+    GPIO.setmode(GPIO.BOARD)        #numbers GPIOs by physical location
+    GPIO.setup(trigPin, GPIO.OUT)   #
+    GPIO.setup(echoPin, GPIO.IN)    #
+    GPIO.setup(ledPin, GPIO.OUT)    # Set ledPin's mode is output
+    GPIO.output(ledPin, GPIO.LOW)   # Set ledPin low to off led
+    
 def pulseIn(pin,level,timeOut): # function pulseIn: obtain pulse time of a pin
     t0 = time.time()
     while(GPIO.input(pin) != level):
@@ -39,21 +50,31 @@ def getSonar():     #get the measurement results of ultrasonic module,with unit:
     pingTime = pulseIn(echoPin,GPIO.HIGH,timeOut)   #read plus time of echoPin
     distance = pingTime * 340.0 / 2.0 / 10000.0     # the sound speed is 340m/s, and calculate distance
     return distance
-    
-def setup():
-    print ('Program is starting...')
-    GPIO.setmode(GPIO.BOARD)       #numbers GPIOs by physical location
-    GPIO.setup(trigPin, GPIO.OUT)   #
-    GPIO.setup(echoPin, GPIO.IN)    #
 
 def loop():
+    GPIO.output(ledPin, GPIO.HIGH)  # led on
+    execution = 0
+    startTime = time.time()
     while(True):
         distance = getSonar()
         currentTime = time.time()
         print ("The distance at : %.3f is : %.2f cm"%(currentTime, distance))
+        f.write(str(round(distance, 2)))
         if(currentTime - startTime >= 3):
-            GPIO.cleanup()
-            sys.exit()
+            f.write("\n")
+            print("End event registration " + str(execution))
+            execution += 1
+            if(execution >= executions):
+                GPIO.cleanup()
+                print("End program.")
+                sys.exit()
+            else:
+                startTime = time.time()
+                GPIO.output(ledPin, GPIO.LOW)  # led on
+                time.sleep(1)
+                GPIO.output(ledPin, GPIO.HIGH)  # led on
+        else:
+            f.write(",")
         time.sleep(pingFreq)
         
 if __name__ == '__main__':     #program start from here
@@ -64,4 +85,4 @@ if __name__ == '__main__':     #program start from here
         GPIO.cleanup()         #release resource
 
 
-	
+    
