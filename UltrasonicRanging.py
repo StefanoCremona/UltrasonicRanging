@@ -16,9 +16,9 @@ echoPin = 18
 ledPin = 11
 
 MAX_DISTANCE = 220          #define the maximum measured distance
-pingFreq = 0.5              #define the freq of the signal check
-executionTime = 3           #Second after that the walking event terminates.
-executions = 5              #Walking events recorded
+pingFreq = 0.5              #define the freq in seconds of the signal check
+executionTime = 3           #Second after that the registration terminates.
+executions = 5              #Recording events
 timeOut = MAX_DISTANCE*60   #calculate timeout according to the maximum measured distance
 
 f = open("walkingStef.txt", "a")
@@ -55,12 +55,17 @@ def loop():
     GPIO.output(ledPin, GPIO.HIGH)  # led on
     execution = 0
     startTime = time.time()
+    iterations = executionTime / pingFreq
+    print("Expected iterations " + str(iterations))
+    i = 0
+    
     while(True):
+        i += 1
         distance = getSonar()
         currentTime = time.time()
         print ("The distance at : %.3f is : %.2f cm"%(currentTime, distance))
         f.write(str(round(distance, 2)))
-        if(currentTime - startTime >= 3):
+        if(i > iterations):
             f.write("\n")
             print("End event registration " + str(execution))
             execution += 1
@@ -69,10 +74,10 @@ def loop():
                 print("End program.")
                 sys.exit()
             else:
-                startTime = time.time()
                 GPIO.output(ledPin, GPIO.LOW)  # led on
                 time.sleep(1)
                 GPIO.output(ledPin, GPIO.HIGH)  # led on
+                i = 0
         else:
             f.write(",")
         time.sleep(pingFreq)
