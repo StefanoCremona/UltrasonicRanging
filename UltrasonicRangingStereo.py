@@ -54,17 +54,17 @@ def loop():
     while(True):
         distance = getSonar()
         print ("The distance of ", rotation % 2, " is : %.2f cm"%(distance))
-	global rotation
-	global echoPin
-	global trigPin
-	rotation += 1
-	if rotation % 2 == 0:
-		echoPin = echoPinA
-		trigPin = trigPinA
-	else:
-		echoPin = echoPinB
-		trigPin = trigPinB
-		
+    global rotation
+    global echoPin
+    global trigPin
+    rotation += 1
+    if rotation % 2 == 0:
+        echoPin = echoPinA
+        trigPin = trigPinA
+    else:
+        echoPin = echoPinB
+        trigPin = trigPinB
+        
         time.sleep(pingFreq)
 
 if __name__ == '__main__':     #program start from here
@@ -75,4 +75,4 @@ if __name__ == '__main__':     #program start from here
         GPIO.cleanup()         #release resource
 
 
-	
+    

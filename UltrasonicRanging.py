@@ -16,9 +16,9 @@ echoPin = 18
 ledPin = 11
 
 MAX_DISTANCE = 220          #define the maximum measured distance
-pingFreq = 0.5              #define the freq in seconds of the signal check
-executionTime = 3           #Second after that the registration terminates.
-executions = 5              #Recording events
+pingFreq = 0.01             #define the freq in seconds of the signal check
+executionTime = 1.5         #Second after that the registration terminates.
+executions = 1              #Recording events
 timeOut = MAX_DISTANCE*60   #calculate timeout according to the maximum measured distance
 
 f = open("walkingStef.txt", "a")
@@ -35,7 +35,7 @@ def pulseIn(pin,level,timeOut): # function pulseIn: obtain pulse time of a pin
     t0 = time.time()
     while(GPIO.input(pin) != level):
         if((time.time() - t0) > timeOut*0.000001):
-            return 0;
+            return 0
     t0 = time.time()
     while(GPIO.input(pin) == level):
         if((time.time() - t0) > timeOut*0.000001):

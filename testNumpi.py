@@ -46,7 +46,7 @@ def draw_line():
     plt.xlabel("Number Value", fontsize=10)
 
     # Set y axes label.
-    plt.ylabel("Square of Number", fontsize=10)
+    plt.ylabel("Sonic Pings", fontsize=10)
 
     # Set the x, y axis tick marks text size.
     plt.tick_params(axis='both', labelsize=9)
