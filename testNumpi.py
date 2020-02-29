@@ -8,40 +8,41 @@ def draw_line():
 
     f = open("walkingStef.txt", "r")
     f1 = f.read()
-    points = [map(str.strip, s_inner.split(',')) for s_inner in f1.splitlines()]
+    points = [map(lambda x: float(str.strip(x)), s_inner.split(',')) for s_inner in f1.splitlines()]
     f.close()
 
     f = open("walkingStefRight.txt", "r")
     f1 = f.read()
-    pointsRight = [map(str.strip, s_inner.split(',')) for s_inner in f1.splitlines()]
+    pointsRight = [map(lambda x: float(str.strip(x)), s_inner.split(',')) for s_inner in f1.splitlines()]
     f.close()
 
     if (len(points) == 0):
         print("File empty. Ending program.")
         sys.exit()
 
-    # Creates the X axes points 
+    # Create the X axes points and normalise them
     x_number_values = []
     k = 0
     for i in points[0]:
         x_number_values.append(k)
-        if (k > 0 and (float(i) > 200 or float(i) <= 5)):
+        if (k > 0 and (i > 200 or i <= 5)):
             points[0][k] = points[0][k-1]
         k += 1
 
     # Normalise the Right points
     k = 0
     for i in pointsRight[0]:
-        if (k > 0 and (float(i) > 200 or float(i) <= 5)): 
+        if (k > 0 and (i > 200 or i <= 5)): 
             pointsRight[0][k] = pointsRight[0][k-1]
         k += 1
 
     # Revert the right points
     k = 0
     for i in pointsRight[0]:
-        pointsRight[0][k] = (float(pointsRight[0][k]) * 100 -19500) * -1 / 100
+        pointsRight[0][k] = (pointsRight[0][k] * 100 -19500) * -1 / 100
         k += 1
 
+    print(points[0])
     print(pointsRight[0])
 
     for y_number_values in points: 
