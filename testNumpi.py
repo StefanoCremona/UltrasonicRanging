@@ -25,22 +25,22 @@ def draw_line():
     k = 0
     for i in points[0]:
         x_number_values.append(k)
-	if (k > 0 and (float(i) > 200 or float(i) <= 5)):
-		points[0][k] = points[0][k-1]
+        if (k > 0 and (float(i) > 200 or float(i) <= 5)):
+            points[0][k] = points[0][k-1]
         k += 1
 
     # Normalise the Right points
     k = 0
     for i in pointsRight[0]:
-	if (k > 0 and (float(i) > 200 or float(i) <= 5)): 
-		pointsRight[0][k] = pointsRight[0][k-1]
-	k += 1
+        if (k > 0 and (float(i) > 200 or float(i) <= 5)): 
+            pointsRight[0][k] = pointsRight[0][k-1]
+        k += 1
 
     # Revert the right points
     k = 0
     for i in pointsRight[0]:
-	pointsRight[0][k] = (float(pointsRight[0][k]) * 100 -19500) * -1 / 100
-	k += 1
+        pointsRight[0][k] = (float(pointsRight[0][k]) * 100 -19500) * -1 / 100
+        k += 1
 
     print(pointsRight[0])
 
