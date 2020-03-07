@@ -22,8 +22,8 @@ def getSize():
   fig = plt.gcf()
   return fig.get_size_inches()*fig.dpi
 
-def resize_canvas(old_image_path="foo.png", new_image_path="newFoo.png",
-                  canvas_width=500, canvas_height=500):
+def resize_canvas(old_image_path, new_image_path,
+                  canvas_width, canvas_height):
     """
     Resize the canvas of old_image_path.
     https://stackoverflow.com/questions/1572691/in-python-python-image-library-1-1-6-how-can-i-expand-the-canvas-without-resiz/27784150#27784150
@@ -90,8 +90,8 @@ def draw_line(path, prefix):
     
     filteredPoints = trimValues(points[0], pointsRight[0])
 
-    firstLine = filteredPoints[0]  # use points[0] for row data
-    secondLine = filteredPoints[1] # use rightPoints[0] for row data
+    firstLine = points[0]  # use points[0] for row data or filteredPoints[0]
+    secondLine = pointsRight[0] # use rightPoints[0] for row data or filteredPoints[1]
 
     # Create the X axes points and normalise them
     x_number_values = []
@@ -129,12 +129,13 @@ def draw_line(path, prefix):
     # Save the image in a squared form
     imgSize = getSize()
     maxSize = int(imgSize[0] if (imgSize[0] > imgSize[1]) else imgSize[1]) + 1
-    resize_canvas(path+imgName+'.png', path+'new'+imgName+'.png', maxSize, maxSize)
+    resize_canvas(path+imgName+'.png', path+imgName+'new.png', maxSize, maxSize)
 
     # Resize it in a 28*28 for for the AI test
-    img = Image.open(path+'new'+imgName+'.png')
+    img = Image.open(path+imgName+'new.png')
     resized = img.resize((28, 28), PIL.Image.ANTIALIAS)
-    resized.save(path+'resized'+imgName+'.png')
+    resized.save(path+imgName+'resized.png')
+    plt.clf()
 
 if __name__ == '__main__':
-    draw_line("./", "")
+    draw_line("C:/Users/e7470/rowData/singleDouglasWalking" + "/", "202003062333180161")
