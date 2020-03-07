@@ -8,11 +8,11 @@ import sys
 from PIL import Image
 
 #x_number_values = [1, 2, 3, 4, 5, 6, 7]
-leftColor="white"
-rightColor="white"
-fillColor=""
-maxValue=24 # 4 for Unity simulator, 22 real case
-deltaValue=3
+leftColor="black"
+rightColor="black"
+fillColor="black"
+maxValue=4 # 4 for Unity simulator, 22 real case
+deltaValue=0.3
 
 # Parse the string values from first file reading
 def parseValues(x):
@@ -66,7 +66,7 @@ def trimValues(points, pointsRight):
       break
   for i in range(maxLen):
     if (points[maxLen-i-1] < (maxValue - deltaValue) or pointsRight[maxLen-i-1] < (maxValue - deltaValue)):
-      right=maxLen-i-1
+      right=maxLen-i
       break
   
   return [points[left:right], pointsRight[left:right]]
@@ -90,8 +90,8 @@ def draw_line(path, prefix):
     
     filteredPoints = trimValues(points[0], pointsRight[0])
 
-    firstLine = points[0]  # use points[0] for row data or filteredPoints[0]
-    secondLine = pointsRight[0] # use rightPoints[0] for row data or filteredPoints[1]
+    firstLine = filteredPoints[0]  # use points[0] for row data or filteredPoints[0]
+    secondLine = filteredPoints[1] # use rightPoints[0] for row data or filteredPoints[1]
 
     # Create the X axes points and normalise them
     x_number_values = []
@@ -106,36 +106,48 @@ def draw_line(path, prefix):
         secondLine[k] = (secondLine[k] * 100 - maxValue*100) * -1 / 100
         k += 1
 
+    imgName = prefix if prefix else "foo"
+    
+    # Draw the lines with the default colors: 
+    plt.plot(x_number_values, firstLine, linewidth=1)
+    plt.plot(x_number_values, secondLine, linewidth=1)
+    plt.savefig(path+imgName+'Row.png', bbox_inches='tight', pad_inches=0)
+    plt.clf() # Clear the cache
+    
     # for y_number_values in points: 
     plt.plot(x_number_values, firstLine, linewidth=1, color=leftColor)
 
     # for y_number_values in pointsRight:
     plt.plot(x_number_values, secondLine, linewidth=1, color=rightColor)
 
+    # Get the area to fill
+    # Impossible to put the condition inside the fill_between function. It doesn't work
+    fillArea = []
+
+    for i in range(0, len(x_number_values)):
+      fillArea.append(firstLine[i]<secondLine[i])
     # plt.figure(figsize=(40, 80))
-    plt.fill_between(x_number_values, firstLine, secondLine, where=firstLine <= secondLine)
+    plt.fill_between(x_number_values, firstLine, secondLine, where=fillArea, color=fillColor)
 
     # Remove all the possible extra space
     plt.gca().set_axis_off()
-    plt.subplots_adjust(top = 1, bottom = 0, right = 1, left = 0, 
-                hspace = 0, wspace = 0)
+    plt.subplots_adjust(top = 1, bottom = 0, right = 1, left = 0, hspace = 0, wspace = 0)
     plt.margins(0,0)
     plt.gca().xaxis.set_major_locator(plt.NullLocator())
     plt.gca().yaxis.set_major_locator(plt.NullLocator())
 
-    imgName = prefix if prefix else "foo"
     plt.savefig(path+imgName+'.png', bbox_inches='tight', pad_inches=0)
+    plt.clf()
 
     # Save the image in a squared form
     imgSize = getSize()
     maxSize = int(imgSize[0] if (imgSize[0] > imgSize[1]) else imgSize[1]) + 1
-    resize_canvas(path+imgName+'.png', path+imgName+'new.png', maxSize, maxSize)
+    resize_canvas(path+imgName+'.png', path+imgName+'squared.png', maxSize, maxSize)
 
     # Resize it in a 28*28 for for the AI test
-    img = Image.open(path+imgName+'new.png')
+    img = Image.open(path+imgName+'squared.png')
     resized = img.resize((28, 28), PIL.Image.ANTIALIAS)
     resized.save(path+imgName+'resized.png')
-    plt.clf()
 
 if __name__ == '__main__':
-    draw_line("C:/Users/e7470/rowData/singleDouglasWalking" + "/", "202003062333180161")
+    draw_line("C:/Users/e7470/rowData/singleDouglasWalking" + "/", "202003062333044708")
