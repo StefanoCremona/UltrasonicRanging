@@ -1,4 +1,7 @@
 #!/c/Python27/python.exe
+# Gets all the files from a root directory and passes them to the routine 
+# for generating the 28*28 images
+
 from os import listdir
 from os.path import isdir, join, isfile
 from createAndCleanShapes import draw_line
