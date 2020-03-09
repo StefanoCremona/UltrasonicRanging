@@ -8,6 +8,7 @@ from createAndCleanShapes import draw_line
 mypath = "C:/Users/e7470/rowData/"
 rootDirs = [f for f in listdir(mypath) if isdir(join(mypath, f))]
 
+print("Directories found: ")
 print(rootDirs)
 for myDir in rootDirs:
     tempPath = mypath + myDir
@@ -15,3 +16,4 @@ for myDir in rootDirs:
     for myFile in myFiles:
         prefix = myFile[0:myFile.rfind('Left')]
         draw_line(tempPath + '/', prefix)
+    print("File converted for " + myDir + ": " + len(myFiles))
