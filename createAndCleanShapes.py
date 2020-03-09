@@ -1,5 +1,6 @@
 #!/c/Python27/python.exe
 import matplotlib.pyplot as plt
+import numpy as np
 import csv
 from PIL import Image
 import math
@@ -111,14 +112,14 @@ def draw_line(path, prefix):
     # Draw the lines with the default colors: 
     plt.plot(x_number_values, firstLine, linewidth=1)
     plt.plot(x_number_values, secondLine, linewidth=1)
-    plt.savefig(path+imgName+'Row.png', bbox_inches='tight', pad_inches=0)
+    plt.savefig(path+imgName+'row.png', bbox_inches='tight', pad_inches=0)
     plt.clf() # Clear the cache
     
     # for y_number_values in points: 
-    plt.plot(x_number_values, firstLine, linewidth=1, color=leftColor)
+    plt.plot(x_number_values, firstLine, linewidth=2, color=leftColor)
 
     # for y_number_values in pointsRight:
-    plt.plot(x_number_values, secondLine, linewidth=1, color=rightColor)
+    plt.plot(x_number_values, secondLine, linewidth=2, color=rightColor)
 
     # Get the area to fill
     # Impossible to put the condition inside the fill_between function. It doesn't work
@@ -129,25 +130,28 @@ def draw_line(path, prefix):
     # plt.figure(figsize=(40, 80))
     plt.fill_between(x_number_values, firstLine, secondLine, where=fillArea, color=fillColor)
 
-    # Remove all the possible extra space
+    # Remove all the possible extra space from the plot
     plt.gca().set_axis_off()
     plt.subplots_adjust(top = 1, bottom = 0, right = 1, left = 0, hspace = 0, wspace = 0)
     plt.margins(0,0)
     plt.gca().xaxis.set_major_locator(plt.NullLocator())
     plt.gca().yaxis.set_major_locator(plt.NullLocator())
 
-    plt.savefig(path+imgName+'.png', bbox_inches='tight', pad_inches=0)
+    plt.savefig(path+imgName+'filled.png', bbox_inches='tight', pad_inches=0)
     plt.clf()
 
     # Save the image in a squared form
     imgSize = getSize()
     maxSize = int(imgSize[0] if (imgSize[0] > imgSize[1]) else imgSize[1]) + 1
-    resize_canvas(path+imgName+'.png', path+imgName+'squared.png', maxSize, maxSize)
+    resize_canvas(path+imgName+'filled.png', path+imgName+'squared.png', maxSize, maxSize)
 
     # Resize it in a 28*28 for for the AI test
     img = Image.open(path+imgName+'squared.png')
     resized = img.resize((28, 28), PIL.Image.ANTIALIAS)
-    resized.save(path+imgName+'resized.png')
+    resized.save(path+imgName+'resized28.png')
+
+    resized = img.resize((56, 56), PIL.Image.ANTIALIAS)
+    resized.save(path+imgName+'resized56.png')
 
 if __name__ == '__main__':
     draw_line("C:/Users/e7470/rowData/singleDouglasWalking" + "/", "202003062333044708")
