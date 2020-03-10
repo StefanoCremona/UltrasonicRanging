@@ -5,12 +5,21 @@
 from os import listdir
 from os.path import isdir, join, isfile
 from createAndCleanShapes import draw_line
+import sys
+
 mypath = "C:/Users/e7470/rowData/"
 rootDirs = [f for f in listdir(mypath) if isdir(join(mypath, f))]
+
+if (len(sys.argv) > 1):
+    rootDirs = [sys.argv[1]]
+
 lasers = ["B", "M", "T"]
+
+# Force here the directory you want to parse
 
 print("Directories found: ")
 print(rootDirs)
+
 for myDir in rootDirs:
     tempPath = mypath + myDir
     for myLaser in lasers:
