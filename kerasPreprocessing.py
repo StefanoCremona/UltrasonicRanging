@@ -42,8 +42,8 @@ def rgb2gray(rgb):
 image_generator = tf.keras.preprocessing.image.ImageDataGenerator(rescale=1./255)
 
 BATCH_SIZE = 100
-IMG_HEIGHT = 28
-IMG_WIDTH = 28
+IMG_HEIGHT = 500
+IMG_WIDTH = 500
 STEPS_PER_EPOCH = np.ceil(image_count/BATCH_SIZE)
 
 train_data_gen = image_generator.flow_from_directory(directory=str(data_dir),
