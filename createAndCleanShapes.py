@@ -9,8 +9,8 @@ import sys
 from PIL import Image
 
 #x_number_values = [1, 2, 3, 4, 5, 6, 7]
-leftColor="black"
-rightColor="black"
+leftColor="white"
+rightColor="white"
 fillColor="black"
 maxValue=4 # 4 for Unity simulator, 22 real case
 deltaValue=0.3
@@ -73,14 +73,14 @@ def trimValues(points, pointsRight):
   return [points[left:right], pointsRight[left:right]]
 
 # Plot a line based on the x and y axis value list.
-def draw_line(path, prefix):
+def draw_line(path, timeRecording, laserHeight):
 
-    f = open(path+prefix+"Left.txt", "r")
+    f = open(path+timeRecording+"Left"+laserHeight+".txt", "r")
     f1 = f.read()
     points = [map(parseValues, s_inner.split(',')) for s_inner in f1.splitlines()]
     f.close()
 
-    f = open(path+prefix+"Right.txt", "r")
+    f = open(path+timeRecording+"Right"+laserHeight+".txt", "r")
     f1 = f.read()
     pointsRight = [map(parseValues, s_inner.split(',')) for s_inner in f1.splitlines()]
     f.close()
@@ -107,12 +107,12 @@ def draw_line(path, prefix):
         secondLine[k] = (secondLine[k] * 100 - maxValue*100) * -1 / 100
         k += 1
 
-    imgName = prefix if prefix else "foo"
+    imgName = timeRecording if timeRecording else "foo"
     
     # Draw the lines with the default colors: 
     plt.plot(x_number_values, firstLine, linewidth=1)
     plt.plot(x_number_values, secondLine, linewidth=1)
-    plt.savefig(path+imgName+'row.png', bbox_inches='tight', pad_inches=0)
+    plt.savefig(path+imgName+laserHeight+'row.png', bbox_inches='tight', pad_inches=0)
     plt.clf() # Clear the cache
     
     # for y_number_values in points: 
@@ -126,8 +126,9 @@ def draw_line(path, prefix):
     fillArea = []
 
     for i in range(0, len(x_number_values)):
-      fillArea.append(firstLine[i]<secondLine[i])
-    # plt.figure(figsize=(40, 80))
+      test = firstLine[i]<secondLine[i]
+      fillArea.append(test)
+
     plt.fill_between(x_number_values, firstLine, secondLine, where=fillArea, color=fillColor)
 
     # Remove all the possible extra space from the plot
@@ -137,21 +138,24 @@ def draw_line(path, prefix):
     plt.gca().xaxis.set_major_locator(plt.NullLocator())
     plt.gca().yaxis.set_major_locator(plt.NullLocator())
 
-    plt.savefig(path+imgName+'filled.png', bbox_inches='tight', pad_inches=0)
+    plt.savefig(path+imgName+laserHeight+'filled.png', bbox_inches='tight', pad_inches=0)
     plt.clf()
 
     # Save the image in a squared form
     imgSize = getSize()
     maxSize = int(imgSize[0] if (imgSize[0] > imgSize[1]) else imgSize[1]) + 1
-    resize_canvas(path+imgName+'filled.png', path+imgName+'squared.png', maxSize, maxSize)
+    resize_canvas(path+imgName+laserHeight+'filled.png', path+imgName+laserHeight+'squared.png', maxSize, maxSize)
 
     # Resize it in a 28*28 for for the AI test
-    img = Image.open(path+imgName+'squared.png')
+    # Not needed anymore because keras can do it
+    """ img = Image.open(path+imgName+laserHeight+'squared.png')
     resized = img.resize((28, 28), PIL.Image.ANTIALIAS)
-    resized.save(path+imgName+'resized28.png')
+    resized.save(path+imgName+laserHeight+'resized28.png')
 
+    # Resize it in a 56*56 for for the AI test
+    # Not needed anymore because keras can do it
     resized = img.resize((56, 56), PIL.Image.ANTIALIAS)
-    resized.save(path+imgName+'resized56.png')
+    resized.save(path+imgName+laserHeight+'resized56.png') """
 
 if __name__ == '__main__':
-    draw_line("C:/Users/e7470/rowData/singleDouglasWalking" + "/", "202003062333044708")
+    draw_line("C:/Users/e7470/rowData/singleDouglasWalking" + "/", "202003101258314609", "M")
