@@ -10,23 +10,27 @@ import keras
 from keras.models import Sequential, model_from_json
 from keras.layers import Conv2D, MaxPool2D, Dropout, Dense, Flatten, MaxPooling2D
 
+# run a preprocessing file before
 print(train_images.shape)
 print(train_labels.shape)
 
 num_classes=len(CLASS_NAMES)
-image_size = 784 # 28*28
+image_h = 500
+image_w = 500
+image_size = image_h * image_w # 28*28
 
 def fitModel(model):
-    model.fit(train_images, train_labels, epochs=100)
+    model.fit(train_images, train_labels, epochs=10)
     test_loss, test_acc = model.evaluate(test_images,  test_labels, verbose=2)
     print('\nTest loss:', test_loss)
     print('\nTest accuracy:', test_acc)
+    return model
 
 def model1():
     model = keras.Sequential([
-        keras.layers.Flatten(input_shape=(28, 28)),
+        keras.layers.Flatten(input_shape=(image_h, image_w)),
         keras.layers.Dense(128, activation='relu'),
-        keras.layers.Dense(10)
+        keras.layers.Dense(num_classes)
     ])
 
     model.compile(optimizer='adam', 
@@ -35,7 +39,7 @@ def model1():
     return model
 
 def getDataModel2(x_train, y_train, x_test, y_test):
-  img_rows, img_cols = 28, 28
+  img_rows, img_cols = image_h, image_w
 
   #Preprocessin for model 2
   x2_train = x_train.reshape(x_train.shape[0], img_rows, img_cols, 1)
@@ -58,7 +62,7 @@ def model2():
     model = Sequential()
     model.add(Conv2D(32, kernel_size=(3, 3),
                      activation='relu',
-                     input_shape=(28, 28, 1)))
+                     input_shape=(image_h, image_w, 1)))
     model.add(Conv2D(64, (3, 3), activation='relu'))
     model.add(MaxPooling2D(pool_size=(2, 2)))
     model.add(Dropout(0.25))
@@ -72,5 +76,5 @@ def model2():
                   metrics=['accuracy']) #, 'mean_absolute_error', 'mean_squared_error'])
     return model
 
-fitModel(model1())
+model = fitModel(model1())
 #getDataModel2(train_images, train_labels, test_images, test_labels)
