@@ -52,11 +52,8 @@ def draw_line(path, prefix):
     print(points[0])
     print(pointsRight[0])
 
-    for y_number_values in points: 
-        plt.plot(x_number_values, y_number_values, linewidth=1)
-
-    for y_number_values in pointsRight:
-        plt.plot(x_number_values, y_number_values, linewidth=1)
+    plt.plot(x_number_values, points[0], linewidth=1)
+    plt.plot(x_number_values, pointsRight[0], linewidth=1)
 
     #for x in f1:
     #    print map(str.strip, x.split(','))
@@ -92,4 +89,4 @@ def draw_line(path, prefix):
     plt.show()
 
 if __name__ == '__main__':
-    draw_line("C:/Users/e7470/rowData/singleDouglasWalking" + "/", "202003062333044708")
+    draw_line("C:/Users/e7470/rowData/singleDouglasWalking" + "/", "202003062333059773")
