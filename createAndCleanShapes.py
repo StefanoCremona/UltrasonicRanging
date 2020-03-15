@@ -23,6 +23,34 @@ def getSize():
   fig = plt.gcf()
   return fig.get_size_inches()*fig.dpi
 
+def getXaxesValues(y):
+  x = []
+  for i in range(len(y)):
+    x.append(i)
+  return x
+
+# Revert the point by maxvalue through the y axes
+def revertPoints(myArray):
+  retVal = []
+  for i in range(len(myArray)):
+    retVal.append((myArray[i] * 100 - maxValue*100) * -1 / 100)
+  return retVal
+
+# Draw the lines with the default colors: 
+def drawChartAndSaveImg(line1, line2, imgNameAndPath):
+    x = getXaxesValues(line1)
+    plt.plot(x, line1, linewidth=1)
+    plt.plot(x, line2, linewidth=1)
+    plt.savefig(imgNameAndPath, bbox_inches='tight', pad_inches=0)
+    plt.clf() # Clear the cache
+
+def getPointsFromFile(path):
+  f = open(path, "r")
+  f1 = f.read()
+  points = [map(parseValues, s_inner.split(',')) for s_inner in f1.splitlines()]
+  f.close()
+  return points
+
 def resize_canvas(old_image_path, new_image_path,
                   canvas_width, canvas_height):
     """
@@ -72,79 +100,98 @@ def trimValues(points, pointsRight):
   
   return [points[left:right], pointsRight[left:right]]
 
+# Remove all the possible extra space from the plot
+def removeExtraSpaceInGraph():
+  plt.gca().set_axis_off()
+  plt.subplots_adjust(top = 1, bottom = 0, right = 1, left = 0, hspace = 0, wspace = 0)
+  plt.margins(0,0)
+  plt.gca().xaxis.set_major_locator(plt.NullLocator())
+  plt.gca().yaxis.set_major_locator(plt.NullLocator())
+
+def cropImage(imgPrefix, imgSuffix, minX, maxX, minY, maxY, totalX, totalY):
+  # print('Crop to: ' + str(minY) + " " + str(maxY) + " " + str(totalY))
+  im = Image.open(imgPrefix + imgSuffix)
+  widthOrig, heightOrig = im.size   # Get dimensions
+  # print('Img size: ' + str(widthOrig) + "-" + str(heightOrig))
+
+  X0 = -5 + widthOrig * minX / totalX
+  Y0 = heightOrig - 5 - heightOrig * maxY / totalY
+  X1 = 10 + widthOrig * maxX / totalX
+  Y1 = heightOrig + 5 - heightOrig * minY / totalY
+
+  # Crop the center of the image
+  # (Xo, Y0, H, W)
+  return im.crop((X0, Y0, X1, Y1))
+
 # Plot a line based on the x and y axis value list.
 def draw_line(path, timeRecording, laserHeight):
 
-    f = open(path+timeRecording+"Left"+laserHeight+".txt", "r")
-    f1 = f.read()
-    points = [map(parseValues, s_inner.split(',')) for s_inner in f1.splitlines()]
-    f.close()
+    points = getPointsFromFile(path+timeRecording+"Left"+laserHeight+".txt")
+    pointsRight = getPointsFromFile(path+timeRecording+"Right"+laserHeight+".txt")
 
-    f = open(path+timeRecording+"Right"+laserHeight+".txt", "r")
-    f1 = f.read()
-    pointsRight = [map(parseValues, s_inner.split(',')) for s_inner in f1.splitlines()]
-    f.close()
-
-    if (len(points) == 0):
-        print("File empty. Ending program.")
+    if (len(points) == 0 or len(pointsRight) == 0):
+        print("A File with "+timeRecording+" prefix is empty. Ending program.")
         sys.exit()
     
-    filteredPoints = trimValues(points[0], pointsRight[0])
+    imgName = timeRecording if timeRecording else "foo"
 
-    firstLine = filteredPoints[0]  # use points[0] for row data or filteredPoints[0]
-    secondLine = filteredPoints[1] # use rightPoints[0] for row data or filteredPoints[1]
+    # Draw the lines with the default colors:
+    removeExtraSpaceInGraph()
+    drawChartAndSaveImg(points[0], revertPoints(pointsRight[0]), path+imgName+laserHeight+'row.png')
+    
+    # Filtering stretch the image
+    # filteredPoints = trimValues(points[0], pointsRight[0])
 
-    # Create the X axes points and normalise them
-    x_number_values = []
-    k = 0
-    for i in firstLine:
-        x_number_values.append(k)
-        k += 1
+    firstLine = points[0]  # use points[0] for row data or filteredPoints[0]
+    secondLine = pointsRight[0] # use rightPoints[0] for row data or filteredPoints[1]
 
     # Revert the right points
-    k = 0
-    for i in secondLine:
-        secondLine[k] = (secondLine[k] * 100 - maxValue*100) * -1 / 100
-        k += 1
+    secondLine = revertPoints(secondLine)
 
-    imgName = timeRecording if timeRecording else "foo"
-    
-    # Draw the lines with the default colors: 
-    plt.plot(x_number_values, firstLine, linewidth=1)
-    plt.plot(x_number_values, secondLine, linewidth=1)
-    plt.savefig(path+imgName+laserHeight+'row.png', bbox_inches='tight', pad_inches=0)
-    plt.clf() # Clear the cache
-    
-    # for y_number_values in points: 
-    plt.plot(x_number_values, firstLine, linewidth=2, color=leftColor)
-
-    # for y_number_values in pointsRight:
-    plt.plot(x_number_values, secondLine, linewidth=2, color=rightColor)
+    minY = min(firstLine)
+    maxY = max(secondLine)
 
     # Get the area to fill
     # Impossible to put the condition inside the fill_between function. It doesn't work
     fillArea = []
-
+    firstX = 0
+    lastX = 0
+    # Create the X axes points and normalise them
+    x_number_values = getXaxesValues(firstLine)
     for i in range(0, len(x_number_values)):
       test = firstLine[i]<secondLine[i]
+      if (test == True and firstX == 0): firstX = i
+      if (test == True): lastX = i
       fillArea.append(test)
 
-    plt.fill_between(x_number_values, firstLine, secondLine, where=fillArea, color=fillColor)
+    crop = cropImage(path+imgName+laserHeight, 'row.png', firstX, lastX, minY, maxY, len(firstLine), max(firstLine))
+    crop.save(path+imgName+laserHeight + "rowCrop.png")
+    
+    imgSize = crop.size
+    maxSize = int(imgSize[0] if (imgSize[0] > imgSize[1]) else imgSize[1]) + 1
+    resize_canvas(path+imgName+laserHeight+'rowCrop.png', path+imgName+laserHeight+'cropSquared.png', maxSize, maxSize)
 
-    # Remove all the possible extra space from the plot
-    plt.gca().set_axis_off()
-    plt.subplots_adjust(top = 1, bottom = 0, right = 1, left = 0, hspace = 0, wspace = 0)
-    plt.margins(0,0)
-    plt.gca().xaxis.set_major_locator(plt.NullLocator())
-    plt.gca().yaxis.set_major_locator(plt.NullLocator())
+    # Draw the lines with the default colors:
+    # drawChartAndSaveImg(firstLine, secondLine, path+imgName+laserHeight+'filtered.png')
+    
+    # Save the filled Images
+    """removeExtraSpaceInGraph()
+    plt.plot(x_number_values, firstLine, linewidth=2, color=leftColor)
+    plt.plot(x_number_values, secondLine, linewidth=2, color=rightColor)
+
+    plt.fill_between(x_number_values, firstLine, secondLine, where=fillArea, color=fillColor)
 
     plt.savefig(path+imgName+laserHeight+'filled.png', bbox_inches='tight', pad_inches=0)
     plt.clf()
 
+    crop = cropImage(path+imgName+laserHeight, 'filled.png', firstX, lastX, minY, maxY, len(firstLine), max(firstLine))
+    crop.save(path+imgName+laserHeight + "crop.png")
+
     # Save the image in a squared form
-    imgSize = getSize()
+    imgSize = crop.size
     maxSize = int(imgSize[0] if (imgSize[0] > imgSize[1]) else imgSize[1]) + 1
-    resize_canvas(path+imgName+laserHeight+'filled.png', path+imgName+laserHeight+'squared.png', maxSize, maxSize)
+    resize_canvas(path+imgName+laserHeight+'crop.png', path+imgName+laserHeight+'squared.png', maxSize, maxSize)
+    """
 
     # Resize it in a 28*28 for for the AI test
     # Not needed anymore because keras can do it
