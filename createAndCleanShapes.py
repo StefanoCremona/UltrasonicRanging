@@ -41,8 +41,16 @@ def drawChartAndSaveImg(line1, line2, imgNameAndPath):
     x = getXaxesValues(line1)
     plt.plot(x, line1, linewidth=1)
     plt.plot(x, line2, linewidth=1)
+
+    # plt.show()
     plt.savefig(imgNameAndPath, bbox_inches='tight', pad_inches=0)
     plt.clf() # Clear the cache
+
+def getInterceptions(line1, line2):
+    line1A = np.array(line1)
+    line2A = np.array(line2)
+
+    return len(np.argwhere(np.diff(np.sign(line1A - line2A))).flatten())
 
 def getPointsFromFile(path):
   f = open(path, "r")
@@ -115,9 +123,9 @@ def cropImage(imgPrefix, imgSuffix, minX, maxX, minY, maxY, totalX, totalY):
   # print('Img size: ' + str(widthOrig) + "-" + str(heightOrig))
 
   X0 = -5 + widthOrig * minX / totalX
-  Y0 = heightOrig - 5 - heightOrig * maxY / totalY
-  X1 = 10 + widthOrig * maxX / totalX
-  Y1 = heightOrig + 5 - heightOrig * minY / totalY
+  Y0 = heightOrig - 5 - (heightOrig) * maxY / totalY
+  X1 = widthOrig * (maxX + 2) / totalX
+  Y1 = heightOrig + 5 - (heightOrig + 1) * minY / totalY
 
   # Crop the center of the image
   # (Xo, Y0, H, W)
@@ -151,6 +159,9 @@ def draw_line(path, timeRecording, laserHeight):
     minY = min(firstLine)
     maxY = max(secondLine)
 
+    # Get the number of different shapes created by the interceptions of the 2 lines
+    nShapes = getInterceptions(firstLine, secondLine) / 2
+
     # Get the area to fill
     # Impossible to put the condition inside the fill_between function. It doesn't work
     fillArea = []
@@ -169,15 +180,15 @@ def draw_line(path, timeRecording, laserHeight):
     
     imgSize = crop.size
     maxSize = int(imgSize[0] if (imgSize[0] > imgSize[1]) else imgSize[1]) + 1
-    resize_canvas(path+imgName+laserHeight+'rowCrop.png', path+imgName+laserHeight+'cropSquared.png', maxSize, maxSize)
+    resize_canvas(path+imgName+laserHeight+'rowCrop.png', path+imgName+laserHeight+'rowCropSquared'+str(nShapes)+'.png', maxSize, maxSize)
 
     # Draw the lines with the default colors:
     # drawChartAndSaveImg(firstLine, secondLine, path+imgName+laserHeight+'filtered.png')
     
     # Save the filled Images
-    """removeExtraSpaceInGraph()
-    plt.plot(x_number_values, firstLine, linewidth=2, color=leftColor)
-    plt.plot(x_number_values, secondLine, linewidth=2, color=rightColor)
+    removeExtraSpaceInGraph()
+    plt.plot(x_number_values, firstLine, linewidth=0, color=leftColor)
+    plt.plot(x_number_values, secondLine, linewidth=0, color=rightColor)
 
     plt.fill_between(x_number_values, firstLine, secondLine, where=fillArea, color=fillColor)
 
@@ -190,8 +201,7 @@ def draw_line(path, timeRecording, laserHeight):
     # Save the image in a squared form
     imgSize = crop.size
     maxSize = int(imgSize[0] if (imgSize[0] > imgSize[1]) else imgSize[1]) + 1
-    resize_canvas(path+imgName+laserHeight+'crop.png', path+imgName+laserHeight+'squared.png', maxSize, maxSize)
-    """
+    resize_canvas(path+imgName+laserHeight+'crop.png', path+imgName+laserHeight+'squared'+str(nShapes)+'.png', maxSize, maxSize)
 
     # Resize it in a 28*28 for for the AI test
     # Not needed anymore because keras can do it
