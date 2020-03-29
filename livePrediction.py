@@ -61,17 +61,26 @@ def plot_value_array(predictions_array):
 
   thisplot[predicted_label].set_color('green')
 
+def readImage(rootDir, file):
+    img = Image.open(join(rootDir, file))
+    img = img.resize((300, 300), PIL.Image.ANTIALIAS)
+    img = np.array(img)
+    return rgb2gray(img)
+
+def plotPrediction(img, prediction):
+    plt.figure(figsize=(12,6))
+    plt.subplot(1,2,1)
+    plt.imshow(img, cmap=plt.cm.binary)
+    plt.subplot(1,2,2)
+    plot_value_array(prediction)
+
 prefix = "Seq20200324222341AllFilled"
 CLASS_NAMES = loadClassesNames(models_dir, "classesNames"+prefix+".json")
+
 model = loadModel('model'+prefix+'.json', 'weights'+prefix+'.h5')
+model = compileModel(model)
 
-compileModel(model)
-
-img_path = '202003101656127128Tsquared1.png'
-img = Image.open(join(test_dir, img_path))
-img = img.resize((300, 300), PIL.Image.ANTIALIAS)
-img = np.array(img)
-img=rgb2gray(img)
+img = readImage(test_dir, '202003101656127128Tsquared1.png')
 
 # img = np.reshape(img, (1, 300, 300))
 probability_model = keras.Sequential([model, keras.layers.Softmax()])
@@ -80,9 +89,4 @@ images = images / 255.0
 predictions = probability_model.predict([images])
 # print(predictions[0]) # 'numpy.ndarray', 300*300
 # print(np.argmax(predictions))
-
-plt.figure(figsize=(12,6))
-plt.subplot(1,2,1)
-plt.imshow(img, cmap=plt.cm.binary)
-plt.subplot(1,2,2)
-plot_value_array(predictions[0])
+plotPrediction(img, predictions[0])
