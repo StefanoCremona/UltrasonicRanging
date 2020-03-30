@@ -67,6 +67,7 @@ def plotImgAndPrediction(img, prediction, class_names):
     plt.imshow(img, cmap=plt.cm.binary)
     plt.subplot(1,2,2)
     plot_value_array(prediction, class_names)
+    plt.show()
 
 def getProbabilityModel(model_file, weights_file):
     model = loadModel(model_file, weights_file)
