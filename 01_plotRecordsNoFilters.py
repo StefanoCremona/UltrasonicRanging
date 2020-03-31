@@ -6,7 +6,7 @@ import sys
 from os.path import join
 
 #x_number_values = [1, 2, 3, 4, 5, 6, 7]
-maxValue = 89 # 4 for Unity simulator
+maxValue = 65 # 4 for Unity simulator
 
 # Parse the string values from first file reading
 def parseValues(x):
@@ -87,7 +87,7 @@ def draw_line():
     plotLine(x_number_values, secondLine, "Right")
     plt.fill_between(x_number_values, firstLine, secondLine, where=secondLine >= firstLine )
     
-    aspectRatio = 0.15
+    aspectRatio = 0.5
     ax = plt.gca() #you first need to get the axis handle
     ax.set_aspect(aspectRatio) #sets the height to width ratio to 1.5.
 
