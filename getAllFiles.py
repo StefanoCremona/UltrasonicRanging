@@ -7,12 +7,19 @@ from os.path import isdir, join, isfile
 from createAndCleanShapes import draw_line
 import sys
 from createDataDirs import createDirs
+from mirrorImages import doMirror
 
 homeDir = "C:/Users/e7470" 
 rootRowDataPath = homeDir+"/rowData/"
 rootDataPath = homeDir+"/dataTest/"
+
+def mirrorImage(initialPath):
+  im = Image.open(initialPath)
+  return ImageOps.mirror(im)
+
 rootDirs = [f for f in listdir(rootRowDataPath) if isdir(join(rootRowDataPath, f)) and f.rfind('DowglasForward') < 0] # DowglasForward is a test Dir
 
+# Accept one input as a directory to work with
 if (len(sys.argv) > 1):
     rootDirs = [sys.argv[1]]
 
@@ -21,9 +28,11 @@ lasers = ["B", "M", "T"]
 # Force here the directory you want to parse
 # rootDirs = ["DowglasForward"]
 
-print("Directories found: ")
-print(rootDirs)
+print("Directories found: " + str(rootDirs))
 
+# Convert all the txt files in images
+# Comment if you did it already
+'''
 for myDir in rootDirs:
     tempPath = rootRowDataPath + myDir
     for myLaser in lasers:
@@ -37,5 +46,6 @@ for myDir in rootDirs:
             # print('timeRecording: ' + str(timeRecording))
             draw_line(tempPath + '/', timeRecording, myLaser)
         print("File converted for " + myDir + ": " + str(len(myFiles)) + " laserH: " + myLaser)
-
-createDirs(rootRowDataPath, rootDataPath, rootDirs, lasers)
+'''
+# doMirror(rootDirs)
+# createDirs(rootRowDataPath, rootDataPath, rootDirs, lasers)
