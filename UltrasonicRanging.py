@@ -24,7 +24,7 @@ rotation = 0
 
 MAX_DISTANCE = 200          #define the maximum measured distance. Over that I get a timeout then 0
 pingFreq = 0.01              #define the freq in seconds of the signal check
-executionTime = 1.5         #Second after that the registration terminates.
+executionTime = 1.50         #Second after that the registration terminates.
 executions = 1              #Recording events
 timeOut = MAX_DISTANCE*60   #calculate timeout according to the maximum measured distance
 DOOR_DISTANCE = 89
