@@ -2,8 +2,11 @@
 import pathlib
 from os.path import join
 from livePredictionUtils import getProbabilityModel, loadClassesNames, getImageToPlot, getPredictions, plotImgAndPrediction
+import platform
 
 models_dir = pathlib.Path("/home/pi/Models")
+if platform.system() == "Windows":
+    models_dir = pathlib.Path("C:/Users/e7470/models")
 modelName = "Seq20200324222341AllFilled" # Type here the testName of the model you want to load
 # imgDir = pathlib.Path("/home/pi/Images/oneNormT1")
 # imgName = 'Flipped202003101656127128Tsquared1.png'
