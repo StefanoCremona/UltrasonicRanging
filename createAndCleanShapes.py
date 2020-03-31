@@ -8,12 +8,15 @@ import math
 import PIL
 import sys
 from PIL import Image
+import platform
 
 #x_number_values = [1, 2, 3, 4, 5, 6, 7]
 leftColor="white"
 rightColor="white"
 fillColor="black"
-maxValue= 89.0 # 4 for Unity simulator, 22 real case
+maxValue= 89.0 # 4 for Unity simulator, 89.0 real case
+if platform.system() == "Windows":
+  maxValue = 4
 deltaValue=0.3
 
 # Parse the string values from first file reading
@@ -200,16 +203,16 @@ def draw_line(path, timeRecording, laserHeight):
 
     plt.fill_between(x_number_values, firstLine, secondLine, where=fillArea, color=fillColor)
 
-    plt.savefig(path+imgName+laserHeight+'filled.png', bbox_inches='tight', pad_inches=0)
+    plt.savefig(path+imgName+laserHeight+'Filled.png', bbox_inches='tight', pad_inches=0)
     plt.clf()
 
-    crop = cropImage(path+imgName+laserHeight, 'filled.png', firstX, lastX, minY, maxY, len(firstLine), max(firstLine))
-    crop.save(path+imgName+laserHeight + "crop.png")
+    crop = cropImage(path+imgName+laserHeight, 'Filled.png', firstX, lastX, minY, maxY, len(firstLine), max(firstLine))
+    crop.save(path+imgName+laserHeight + "FilledCrop.png")
 
     # Save the image in a squared form
     imgSize = crop.size
     maxSize = int(imgSize[0] if (imgSize[0] > imgSize[1]) else imgSize[1]) + 1
-    resize_canvas(path+imgName+laserHeight+'crop.png', path+imgName+laserHeight+'squared'+str(nShapes)+'.png', maxSize, maxSize)
+    resize_canvas(path+imgName+laserHeight+'FilledCrop.png', path+imgName+laserHeight+'FilledSquared'+str(nShapes)+'.png', maxSize, maxSize)
 
     # Resize it in a 28*28 for for the AI test
     # Not needed anymore because keras can do it
