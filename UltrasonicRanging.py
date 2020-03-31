@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/python
 ########################################################################
 # Filename    : UltrasonicRanging.py
 # Description : Get distance from UltrasonicRanging.
@@ -9,25 +9,38 @@ import RPi.GPIO as GPIO
 import time
 import sys
 
-trigPin = 16
-#trigPin = 36
-echoPin = 18
-#echoPin = 38
-ledPin = 11
+import time
 
-MAX_DISTANCE = 220          #define the maximum measured distance
-pingFreq = 0.01             #define the freq in seconds of the signal check
-executionTime = 1.5         #Second after that the registration terminates.
+trigPin = 16
+trigPinA = 16
+trigPinB = 36
+
+ledPin = 11
+echoPin = 18
+echoPinA = 18
+echoPinB = 38
+
+rotation = 0
+
+MAX_DISTANCE = 200          #define the maximum measured distance. Over that I get a timeout then 0
+pingFreq = 0.01              #define the freq in seconds of the signal check
+executionTime = 1.50         #Second after that the registration terminates.
 executions = 1              #Recording events
 timeOut = MAX_DISTANCE*60   #calculate timeout according to the maximum measured distance
+DOOR_DISTANCE = 89
 
-f = open("walkingStef.txt", "a")
+leftF = open("Left.txt", "a")
+rightF = open("Right.txt", "a")
 
 def setup():
     print ('Program is starting...')
     GPIO.setmode(GPIO.BOARD)        #numbers GPIOs by physical location
-    GPIO.setup(trigPin, GPIO.OUT)   #
-    GPIO.setup(echoPin, GPIO.IN)    #
+
+    GPIO.setup(trigPinA, GPIO.OUT)   #
+    GPIO.setup(trigPinB, GPIO.OUT)   #
+    GPIO.setup(echoPinA, GPIO.IN)    #
+    GPIO.setup(echoPinB, GPIO.IN)    #
+
     GPIO.setup(ledPin, GPIO.OUT)    # Set ledPin's mode is output
     GPIO.output(ledPin, GPIO.LOW)   # Set ledPin low to off led
     
@@ -55,18 +68,33 @@ def loop():
     GPIO.output(ledPin, GPIO.HIGH)  # led on
     execution = 0
     startTime = time.time()
-    iterations = executionTime / pingFreq
+    iterations = (executionTime / pingFreq) // 2
     print("Expected iterations " + str(iterations))
     i = 0
     
     while(True):
-        i += 1
-        distance = getSonar()
+        global trigPin
+        global echoPin
+        
         currentTime = time.time()
+        currentFile = rightF
+        currentSensor = "Left"
+        if (i % 2 == 0):
+            currentFile = leftF
+            trigPin = trigPinA
+            echoPin = echoPinA
+        else:
+            currentSensor = "Right"
+            trigPin = trigPinB
+            echoPin = echoPinB
+
+        distance = getSonar()
+        print (currentSensor)
         print ("The distance at : %.3f is : %.2f cm"%(currentTime, distance))
-        f.write(str(round(distance, 2)))
-        if(i > iterations):
-            f.write("\n")
+        currentFile.write(str(round(distance, 2)))
+        i += 1
+        if(i >= 2 * iterations): # We have 2 sensors so iterations in total are 2 * calculated iterations
+            currentFile.write(",")
             print("End event registration " + str(execution))
             execution += 1
             if(execution >= executions):
@@ -74,12 +102,13 @@ def loop():
                 print("End program.")
                 sys.exit()
             else:
-                GPIO.output(ledPin, GPIO.LOW)  # led on
+                GPIO.output(ledPin, GPIO.LOW)  # led off
                 time.sleep(1)
                 GPIO.output(ledPin, GPIO.HIGH)  # led on
                 i = 0
         else:
-            f.write(",")
+            currentFile.write(",")
+        #if (i % 2 == 0):
         time.sleep(pingFreq)
         
 if __name__ == '__main__':     #program start from here

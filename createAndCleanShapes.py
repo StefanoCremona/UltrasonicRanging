@@ -1,4 +1,5 @@
-#!/c/Python27/python.exe
+#!/usr/bin/python
+#Use python 2.7
 import matplotlib.pyplot as plt
 import numpy as np
 import csv
@@ -12,12 +13,17 @@ from PIL import Image
 leftColor="white"
 rightColor="white"
 fillColor="black"
-maxValue=4 # 4 for Unity simulator, 22 real case
+maxValue= 89.0 # 4 for Unity simulator, 22 real case
 deltaValue=0.3
 
 # Parse the string values from first file reading
 def parseValues(x):
   return float(str.strip(x)) if len(x) > 0 else maxValue # Last value in line is usually empty
+
+def removePeaks(values):
+  for i in range(len(values)-1):
+      if (i > 0 and i < len(values) and values[i] > maxValue):
+          values[i] = values[i-1]
 
 def getSize():
   fig = plt.gcf()
@@ -136,6 +142,8 @@ def draw_line(path, timeRecording, laserHeight):
 
     points = getPointsFromFile(path+timeRecording+"Left"+laserHeight+".txt")
     pointsRight = getPointsFromFile(path+timeRecording+"Right"+laserHeight+".txt")
+    removePeaks(points[0])
+    removePeaks(pointsRight[0])
 
     if (len(points) == 0 or len(pointsRight) == 0):
         print("A File with "+timeRecording+" prefix is empty. Ending program.")
@@ -215,4 +223,4 @@ def draw_line(path, timeRecording, laserHeight):
     resized.save(path+imgName+laserHeight+'resized56.png') """
 
 if __name__ == '__main__':
-    draw_line("C:/Users/e7470/rowData/singleDouglasWalking" + "/", "202003101258314609", "M")
+    draw_line("/home/pi/Scripts" + "/", "", "")
