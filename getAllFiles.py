@@ -26,17 +26,17 @@ if (len(sys.argv) > 1):
 lasers = ["B", "M", "T"]
 
 # Force here the directory you want to parse
-# rootDirs = ["DowglasForward"]
+rootDirs = ["testDowglas"]
 
 print("Directories found: " + str(rootDirs))
 
 # Convert all the txt files in images
 # Comment if you did it already
-'''
+
 for myDir in rootDirs:
     tempPath = rootRowDataPath + myDir
     for myLaser in lasers:
-        myFiles = [f for f in listdir(tempPath) if isfile(join(tempPath, f)) and f.rfind('Left'+myLaser) > 0]
+        myFiles = [f for f in listdir(tempPath) if isfile(join(tempPath, f)) and f.rfind('Left'+myLaser) >= 0]
         # Force here the files you want to parse
         # print(myFiles[0])
         # myFiles = ["202003102249415054LeftB.txt"]
@@ -46,6 +46,6 @@ for myDir in rootDirs:
             # print('timeRecording: ' + str(timeRecording))
             draw_line(tempPath + '/', timeRecording, myLaser)
         print("File converted for " + myDir + ": " + str(len(myFiles)) + " laserH: " + myLaser)
-'''
+
 # doMirror(rootDirs)
 # createDirs(rootRowDataPath, rootDataPath, rootDirs, lasers)
