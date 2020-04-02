@@ -4,9 +4,15 @@ from plotRecordsUtils import removePeaks, plotLine, setupTitles, revertThePoints
 from scipy.signal import savgol_filter
 import sys
 from os.path import join
+import platform
 
 #x_number_values = [1, 2, 3, 4, 5, 6, 7]
-maxValue = 65 # 4 for Unity simulator
+if platform.system() == "Windows":
+    maxValue = 4 # for Unity simulator
+    aspectRatio = 1
+else:
+    maxValue = 89 # for Raspberry
+    aspectRatio = 0.5
 
 # Parse the string values from first file reading
 def parseValues(x):
@@ -14,9 +20,9 @@ def parseValues(x):
 
 def readPoints(file):
     f = open(file, "r")
-    f1 = f.read()[:-1] # I remove the last character that usually is a ','
+    f1 = f.read() # I remove the last character that usually is a ','
     f.close()
-    return [map(parseValues, s_inner.split(',')) for s_inner in f1.splitlines()]
+    return [map(parseValues, s_inner.split(',')[:-1]) for s_inner in f1.splitlines()]
 
 def saveImageForModel(firstLine, secondLine, path, ratio):
     removeExtraSpaceInGraph()
@@ -87,7 +93,6 @@ def draw_line():
     plotLine(x_number_values, secondLine, "Right")
     plt.fill_between(x_number_values, firstLine, secondLine, where=secondLine >= firstLine )
     
-    aspectRatio = 0.5
     ax = plt.gca() #you first need to get the axis handle
     ax.set_aspect(aspectRatio) #sets the height to width ratio to 1.5.
 
