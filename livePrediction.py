@@ -9,9 +9,10 @@ if platform.system() == "Windows":
 else:
     models_dir = pathlib.Path("/home/pi/Models")
 
-modelName = "20200401150306AllFilledSeq100" # Type here the testName of the model you want to load
-# imgDir = pathlib.Path("/home/pi/Images/oneNormT1")
-# imgName = 'Flipped202003101656127128Tsquared1.png'
+try:
+    modelName
+except NameError:
+    modelName = "20200402150758OneNormLatSeq100" # Type here the testName of the model you want to load
 
 try:
     probability_model    
