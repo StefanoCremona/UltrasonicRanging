@@ -13,9 +13,12 @@ import tensorflow as tf
 import pathlib
 # import keras
 
-data_dir = pathlib.Path("C:/Users/e7470/dataTest/trainRowNormal")
-test_dir = pathlib.Path("C:/Users/e7470/dataTest/testRowNormal")
+data_dir = pathlib.Path("C:/Users/e7470/dataTest/00_train")
+test_dir = pathlib.Path("C:/Users/e7470/dataTest/01_test")
 models_dir = pathlib.Path("C:/Users/e7470/models")
+BATCH_SIZE = 1000
+IMG_HEIGHT = 300
+IMG_WIDTH = 300
 
 CLASS_NAMES = np.array([item.name for item in data_dir.glob('*')])
 # CLASS_NAMES = np.array([item.name for item in data_dir.glob('*') if item.name != "LICENSE.txt"])
@@ -45,9 +48,6 @@ def rgb2gray(rgb):
 # The 1./255 is to convert from uint8 to float32 in range [0,1].
 image_generator = tf.keras.preprocessing.image.ImageDataGenerator(rescale=1./255)
 
-BATCH_SIZE = 1000
-IMG_HEIGHT = 500
-IMG_WIDTH = 500
 STEPS_PER_EPOCH = np.ceil(image_count/BATCH_SIZE)
 
 train_data_gen = image_generator.flow_from_directory(directory=str(data_dir),
@@ -90,7 +90,6 @@ test_images = np.asarray([rgb2gray(pi) for pi in test_images])
 # print(type(train_images))
 print('Train images shape: ' + str(train_images.shape))
 
-#print('Train and Test examples:')
 show_batch(train_images, train_labels, 25)
 show_batch(test_images, test_labels, 5)
 
