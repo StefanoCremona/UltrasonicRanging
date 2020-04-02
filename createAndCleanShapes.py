@@ -9,15 +9,18 @@ import PIL
 import sys
 from PIL import Image
 import platform
+from scipy.signal import savgol_filter
 
 #x_number_values = [1, 2, 3, 4, 5, 6, 7]
 leftColor="white"
 rightColor="white"
 fillColor="black"
-maxValue= 89.0 # 4 for Unity simulator, 89.0 real case
+
 if platform.system() == "Windows":
-  maxValue = 4
-deltaValue=0.3
+  maxValue = 4.021 # 4 for Unity simulator... Do we need? We don't expect false measurements
+else:
+  maxValue= 89.0 # 89.0 real case
+# deltaValue=0.3
 
 # Parse the string values from first file reading
 def parseValues(x):
@@ -64,7 +67,7 @@ def getInterceptions(line1, line2):
 def getPointsFromFile(path):
   f = open(path, "r")
   f1 = f.read()
-  points = [map(parseValues, s_inner.split(',')) for s_inner in f1.splitlines()]
+  points = [map(parseValues, s_inner.split(',')[:-1]) for s_inner in f1.splitlines()]
   f.close()
   return points
 
@@ -102,7 +105,7 @@ def resize_canvas(old_image_path, new_image_path,
     newImage.save(new_image_path)
 
 # Remove initial and ending useless values
-def trimValues(points, pointsRight):
+""" def trimValues(points, pointsRight):
   maxLen=len(points)
   left = 0
   right=maxLen
@@ -115,7 +118,7 @@ def trimValues(points, pointsRight):
       right=maxLen-i
       break
   
-  return [points[left:right], pointsRight[left:right]]
+  return [points[left:right], pointsRight[left:right]] """
 
 # Remove all the possible extra space from the plot
 def removeExtraSpaceInGraph():
@@ -140,19 +143,54 @@ def cropImage(imgPrefix, imgSuffix, minX, maxX, minY, maxY, totalX, totalY):
   # (Xo, Y0, H, W)
   return im.crop((X0, Y0, X1, Y1))
 
+# Functions To detect if it's going forward or backward
+def firstIndexfromLeft(myList):
+    maxValue = max(myList)
+    for i in range(len(myList)):
+        if myList[i] < maxValue: 
+            return i
+
+def lastIndexfromLeft(myList):
+    maxValue = max(myList)
+    for i in range(len(myList)):
+        if myList[len(myList) - i - 1] < maxValue: 
+            return (len(myList) - i - 1)
+
+def isGoingForward(firstLine, secondLine):
+  first = firstIndexfromLeft(firstLine)
+  second = firstIndexfromLeft(secondLine)
+
+  if (first != second):
+      # Is going: Forward if right > left else Backward
+      return (second > first)
+  # If left = right try to parse the list backwark...
+  first = lastIndexfromLeft(firstLine)
+  second = lastIndexfromLeft(secondLine)
+  # Is going Forward if right > left else Backward...
+  return (first > second)
+
+# --- And Function To detect if it's going forward or backward
+
 # Plot a line based on the x and y axis value list.
 def draw_line(path, timeRecording, laserHeight):
 
     points = getPointsFromFile(path+timeRecording+"Left"+laserHeight+".txt")
     pointsRight = getPointsFromFile(path+timeRecording+"Right"+laserHeight+".txt")
+    interceptor = getPointsFromFile(path+timeRecording+"Interceptor.txt")
     removePeaks(points[0])
     removePeaks(pointsRight[0])
+    removePeaks(interceptor)
 
-    if (len(points) == 0 or len(pointsRight) == 0):
+    if (len(points) == 0 or len(pointsRight) == 0 or len(interceptor) == 0):
         print("A File with "+timeRecording+" prefix is empty. Ending program.")
         sys.exit()
     
     imgName = timeRecording if timeRecording else "foo"
+    # direction = "Farward" if isGoingForward(points[0], pointsRight[0]) else "Backward"
+    '''print(str(points[0]))
+    print(str(pointsRight[0]))
+    print(direction)
+    # return'''
 
     # Draw the lines with the default colors:
     removeExtraSpaceInGraph()
@@ -161,8 +199,14 @@ def draw_line(path, timeRecording, laserHeight):
     # Filtering stretch the image
     # filteredPoints = trimValues(points[0], pointsRight[0])
 
-    firstLine = points[0]  # use points[0] for row data or filteredPoints[0]
-    secondLine = pointsRight[0] # use rightPoints[0] for row data or filteredPoints[1]
+    firstLine = points[0]  # use points[0] for row data or filteredPoints[0] (Left)
+    secondLine = pointsRight[0] # use rightPoints[0] for row data or filteredPoints[1] (Right)
+    interceptor = interceptor[0] # Interceptor
+
+    if laserHeight == 'M':
+      direction = "Forward" if isGoingForward(firstLine, interceptor) else "Backward"
+    else:
+      direction = ""
 
     # Revert the right points
     secondLine = revertPoints(secondLine)
@@ -212,7 +256,7 @@ def draw_line(path, timeRecording, laserHeight):
     # Save the image in a squared form
     imgSize = crop.size
     maxSize = int(imgSize[0] if (imgSize[0] > imgSize[1]) else imgSize[1]) + 1
-    resize_canvas(path+imgName+laserHeight+'FilledCrop.png', path+imgName+laserHeight+'FilledSquared'+str(nShapes)+'.png', maxSize, maxSize)
+    resize_canvas(path+imgName+laserHeight+'FilledCrop.png', path+imgName+laserHeight+'FilledSquared'+str(nShapes) +direction+'.png', maxSize, maxSize)
 
     # Resize it in a 28*28 for for the AI test
     # Not needed anymore because keras can do it
